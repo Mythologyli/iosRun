@@ -1,4 +1,3 @@
-from geopy.geocoders import Nominatim
 import subprocess
 import os
 import urllib
@@ -6,17 +5,6 @@ import zipfile
 import time
 
 DEVELOPER_DISK_IMAGE_URL = 'https://github.com/haikieu/xcode-developer-disk-image-all-platforms/raw/master/DiskImages/iPhoneOS.platform/DeviceSupport/{v}.zip'
-
-
-def coordinates_from_address(address):
-    try:
-        location = Nominatim(user_agent='changer').geocode(address)
-        print("Location entered: " + location.address)
-        return str(location.latitude) + ' ' + str(location.longitude)
-    except:
-        print('Cannot find address.')
-        time.sleep(5)
-        return None
 
 
 def get_disk_image(version):
@@ -70,6 +58,26 @@ def set_location(coordinates):
                 set_location(coordinates)
 
 
-coor = coordinates_from_address(input('Enter address: '))
-if coor is not None:
-    set_location(coor)
+def set_zju_location(long: float, lati: float):
+    set_location(f"{lati + 0.002293} {long - 0.004769}")
+
+
+def run_from_a_to_b(a_long: float, a_lati: float, b_long: float, b_lati: float, sec: int):
+    d_long = (b_long - a_long) / sec
+    d_lati = (b_lati - a_lati) / sec
+
+    for i in range(sec + 1):
+        set_zju_location(a_long + i * d_long, a_lati + i * d_lati)
+        time.sleep(1)
+
+
+# 120.124244,30.264259 左上
+# 120.123836,30.263059 左下
+# 120.124652,30.262823 右下
+# 120.125086,30.264009 右上
+
+while (True):
+    run_from_a_to_b(120.124244, 30.264259, 120.123836, 30.263059, 24)
+    run_from_a_to_b(120.123836, 30.263059, 120.124652, 30.262823, 14)
+    run_from_a_to_b(120.124652, 30.262823, 120.125086, 30.264009, 24)
+    run_from_a_to_b(120.125086, 30.264009, 120.124244, 30.264259, 14)
